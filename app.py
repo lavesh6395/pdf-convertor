@@ -1,9 +1,8 @@
 import io
 import os
+import fitz
 
 from flask import Flask, render_template, request, send_file
-from PIL import Image as PILImage
-from pdf2image import convert_from_bytes
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.units import inch, cm
 from reportlab.lib.utils import ImageReader
@@ -13,21 +12,16 @@ app = Flask(__name__)
 
 
 def generate_pdf(jpg_bytes, pdf_bytes):
-    # Convert first page of uploaded PDF into an image
-    pdf_images = convert_from_bytes(
-        pdf_bytes,
-        first_page=1,
-        last_page=1
-    )
+    # Convert first page of PDF into PNG using PyMuPDF
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    page = doc.load_page(0)
 
-    pdf_img_buffer = io.BytesIO()
-    pdf_images[0].save(pdf_img_buffer, format="PNG")
+    pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
+    pdf_img_buffer = io.BytesIO(pix.tobytes("png"))
     pdf_img_buffer.seek(0)
 
-    # Output PDF buffer
     output = io.BytesIO()
 
-    # Page setup
     page_width, page_height = landscape(A4)
     margin = 0.5 * inch
     gap = 1.5 * cm
@@ -45,7 +39,6 @@ def generate_pdf(jpg_bytes, pdf_bytes):
 
     c = canvas.Canvas(output, pagesize=landscape(A4))
     c.setLineWidth(1)
-    c.setStrokeColorRGB(0, 0, 0)
 
     # Left JPG
     jpg_reader = ImageReader(io.BytesIO(jpg_bytes))
@@ -86,27 +79,17 @@ def index():
         if not jpg_file or not pdf_file:
             return "Please upload both files.", 400
 
-        try:
-            output_pdf = generate_pdf(
-                jpg_file.read(),
-                pdf_file.read()
-            )
+        output_pdf = generate_pdf(jpg_file.read(), pdf_file.read())
 
-            return send_file(
-                output_pdf,
-                mimetype="application/pdf",
-                as_attachment=True,
-                download_name="aligned_document.pdf"
-            )
-
-        except Exception as e:
-            return f"Error processing files: {e}", 500
+        return send_file(
+            output_pdf,
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name="aligned_document.pdf"
+        )
 
     return render_template("index.html")
 
 
 if __name__ == "__main__":
-    app.run(
-        host="0.0.0.0",
-        port=int(os.environ.get("PORT", 5000))
-    )
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

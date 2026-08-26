@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Converter</title>
+<style>
+body{
+font-family:Arial,sans-serif;
+background:#f4f7fa;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+margin:0;
+}
+.container{
+background:white;
+padding:30px;
+border-radius:15px;
+box-shadow:0 5px 20px rgba(0,0,0,.15);
+width:90%;
+max-width:500px;
+text-align:center;
+}
+h2{color:#0a58ca;}
+.upload{
+margin:20px 0;
+text-align:left;
+}
+label{
+font-weight:bold;
+display:block;
+margin-bottom:8px;
+}
+input[type=file]{
+width:100%;
+padding:10px;
+border:1px solid #ccc;
+border-radius:8px;
+}
+button{
+margin-top:20px;
+width:100%;
+padding:14px;
+background:#0a58ca;
+color:white;
+border:none;
+border-radius:10px;
+font-size:16px;
+cursor:pointer;
+}
+button:hover{
+background:#084298;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h2>PDF + JPG Converter</h2>
+<p>Upload both files and download the formatted PDF.</p>
+
+<form method="POST" enctype="multipart/form-data">
+
+<div class="upload">
+<label>Upload JPG</label>
+<input type="file" name="jpg_file" accept=".jpg,.jpeg" required>
+</div>
+
+<div class="upload">
+<label>Upload PDF</label>
+<input type="file" name="pdf_file" accept=".pdf" required>
+</div>
+
+<button type="submit">Convert & Download</button>
+
+</form>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: pdf-converter
+    env: python
+    plan: free
+
+    buildCommand: |
+      apt-get update
+      apt-get install -y poppler-utils
+      pip install -r requirements.txt
+
+    startCommand: gunicorn app:app
